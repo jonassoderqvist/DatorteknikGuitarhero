@@ -5,7 +5,6 @@ extern void _enable_interrupt();
 
 
 void setPwm(int pwm, int duty){
-    int dutycycle = 0xFFFFFFFF * (duty / 100);
 	OC1RS = duty;
 	PR2 = pwm;
 }
