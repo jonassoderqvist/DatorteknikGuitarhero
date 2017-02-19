@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 extern void _enable_interrupt();
-
+int bpres = PORTD >> 5;
 
 void setPwm(int pwm, int duty){
 	OC1RS = duty;
@@ -26,13 +26,7 @@ void runGame(int song[50], int speed) {
         i++;
 		int btns = getBtns();
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
-		if((PORTD & 0b000000100000) == 0b000000100000){
-            
-	
-		}
-		if((PORTD & 0b000001000000) == 0b000001000000){
-		}
-		if((PORTD & 0b000010000000) == 0b000010000000){
+		if((bpres & 0b000000000111) == ){
 		}
 	}
 }
