@@ -85,7 +85,6 @@ void initPwm(){
     }
     }
 int main(void) {
-    srand(time(NULL));
 	TRISE = 0x00; 	/* Port E bits 0 through 7 is used for the LED and is set to 0 (output) */
 	PORTE = 0x00;
     int song = menu();
