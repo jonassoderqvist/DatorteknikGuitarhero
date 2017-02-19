@@ -443,8 +443,17 @@ display_initiate(){
 
 int main(void) {
     //srand(time(NULL));
-	
 	display_initiate();
+
+	
+	// Iterates song1
+	int songLength = sizeof(song1)/sizeof(int);
+	int i;
+	for(i = 0; i < songLength; i++) {
+		show_block(song1[i]);
+		delay(10000000);
+	}
+	
 	show_block(1);
 	for(;;);
 	
