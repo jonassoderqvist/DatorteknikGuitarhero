@@ -11,7 +11,7 @@ void setPwm(int pwm, int duty){
 }
 initSong(int song){
     if(song==1){
-        return {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2};
+        return {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
 }
 void runGame(int song[50], int speed) {
     int score = 0;
@@ -26,6 +26,7 @@ void runGame(int song[50], int speed) {
 		int btns = getBtns();
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
 		if((PORTD & 0b000000100000) == 0b000000100000){
+            
 	
 		}
 		if((PORTD & 0b000001000000) == 0b000001000000){
