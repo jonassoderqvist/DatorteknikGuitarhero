@@ -16,6 +16,7 @@ initSong(int song){
 void runGame(int song[50], int speed) {
     int score = 0;
     x=0;
+    int i = 0;
 	for(;;) {
         int note = song[x];
         if(i==6000/speed){
