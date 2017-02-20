@@ -1,5 +1,8 @@
 #include <pic32mx.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 #define DISPLAY_VDD PORTFbits.RF6
 #define DISPLAY_VBATT PORTFbits.RF5
@@ -175,6 +178,8 @@ int score;
 int hiScore[3];
 
 int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
+int song2[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
+int song3[] = {1,3,0,5};
 void show_block(int pos);
 void setPwm(int pwm, int duty){
 	OC1RS = duty;
@@ -185,11 +190,14 @@ void runGame(int song[50], int speed) {
     score = 0;
     int x=0;
     int i = 0;
-	for(;;) {
+    for(;;) {
         note = song[x];
         if(i==(1000000/speed)){
             show_block(note);
             x++;
+            if(x==50){
+                break;
+            }
             i=0;
         }
         i++;
@@ -230,33 +238,7 @@ void initPwm(){
 	// Om något knasar, titta lite djupare på OC1CONSET!!!
 	T2CONSET |= 0x08000; // Enable Timer2
 }
-    int speed(){
-        for(;;){
-            if((PORTD & 0b000000100000) == 0b000000100000){
-                return 1;
-            }
-            if((PORTD & 0b000001000000) == 0b000001000000){
-                return 2;
-            }
-            if((PORTD & 0b000010000000) == 0b000010000000){
-                return 3;
-            }
-        }
-    }
-	
-    int menu(){
-        for(;;){
-        if((PORTD & 0b000000100000) == 0b000000100000){
-            return 1;
-        }
-        if((PORTD & 0b000001000000) == 0b000001000000){
-            return 2;
-        }
-        if((PORTD & 0b000010000000) == 0b000010000000){
-            return 3;
-        }
-    }
-}
+
 
 
 
@@ -447,38 +429,116 @@ display_initiate(){
 
 // END OF DISPLAY CODE!
 
-showScore(){
-    char buffer[20], buffer2[20];
-    strcpy(buffer, "Score: ");
-    sprintf(buffer2, "%d", score);
-    strcat(buffer, buffer2);
+void tostring(char str[], int num)
+{
+    int i, rem, len = 0, n;
+    
+    n = num;
+    while (n != 0)
+    {
+        len++;
+        n /= 10;
+    }
+    for (i = 0; i < len; i++)
+    {
+        rem = num % 10;
+        num = num / 10;
+        str[len - (i + 1)] = rem + '0';
+    }
+    str[len] = '\0';
+}
+void clearScrn(void){
     display_init();
-        display_string(0, buffer);
+    display_string(0, "");
+    display_string(1, "");
+    display_string(2, "");
+    display_string(3, "");
+    display_update();
+}
+showScore(){
+    char str[10];
+    tostring(str, score);
+
+    display_init();
+    display_string(0, "Score: ");
+        display_string(1, str);
         display_update();
-        int i=0;
-        while(i<=3){
+    if((PORTD & 0b000000100000) == 0b000000100000){
+        return;
+    }
+    delay(100000000);
+    clearScrn();
+        int i=3;
+        while(i>=0){
             if (score > hiScore[i]){
                 hiScore[i]=score;
-                display_string(i, " " + hiScore[i]);
-                display_update();
-                delay(1000000000);
-                return;
             }
-            display_string(i, " " + hiScore[i]);
-            i++;
+            tostring(str, hiScore[i]);
+            display_string(i, str);
+            i--;
         }
-        delay(1000000000);
+    display_update();
+    if((PORTD & 0b000000100000) == 0b000000100000){
         return;
+    }
+        delay(100000000);
+        return;
+}
+int speed(){
+    display_init();
+    display_string(0, "Choose Speed:");
+    display_string(1, "Fast, Medium, Slow");
+    display_update();
+    for(;;){
+        if((PORTD & 0b000000100000) == 0b000000100000){
+            return 1;
+        }
+        if((PORTD & 0b000001000000) == 0b000001000000){
+            return 2;
+        }
+        if((PORTD & 0b000010000000) == 0b000010000000){
+            return 3;
+        }
+    }
+}
+
+int menu(){
+    display_init();
+    display_string(0, "Choose Song:");
+    display_string(1, "Wild world");
+    display_string(2, "The Robots");
+    display_string(3, "Dancing in the moonlight");
+    display_update();
+    for(;;){
+        if((PORTD & 0b000000100000) == 0b000000100000){
+            return 1;
+        }
+        if((PORTD & 0b000001000000) == 0b000001000000){
+            return 2;
+        }
+        if((PORTD & 0b000010000000) == 0b000010000000){
+            return 3;
+        }
+    }
 }
 int main(void) {
 
 	display_initiate();
-    //int song = menu();
-    //int spd = speed();
+    int song = menu();
+    clearScrn();
+    int spd = speed();
 	//initPwm();
-	//runGame(song1, spd);
-    score=100;
+    clearScrn();
+    if (song==1){
+        runGame(song1, spd);
+    }if (song==2) {
+        runGame(song2, spd);
+    }if(song==3){
+        runGame(song3, spd);
+    }
     showScore();
+    clearScrn();
+    score=0;
     main();
 	return 0;
 }
