@@ -172,7 +172,7 @@ char textbuffer[4][16];
 extern void _enable_interrupt();
 int note;
 int score;
-int hiScore[4];
+int hiScore[3];
 
 int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
 void show_block(int pos);
@@ -446,36 +446,38 @@ display_initiate(){
 }
 
 // END OF DISPLAY CODE!
+
 showScore(){
-    char hi[40];
-    char hiList[4][40];
-    for(;;){
-        display_string(40, *hi);
+    char buffer[20], buffer2[20];
+    strcpy(buffer, "Score: ");
+    sprintf(buffer2, "%d", score);
+    strcat(buffer, buffer2);
+    display_init();
+        display_string(0, buffer);
+        display_update();
         int i=0;
-        while(i<=4){
-            i++;
-            display_string(40, *hiList);
+        while(i<=3){
             if (score > hiScore[i]){
                 hiScore[i]=score;
+                display_string(i, " " + hiScore[i]);
                 display_update();
                 delay(1000000000);
                 return;
             }
+            display_string(i, " " + hiScore[i]);
+            i++;
         }
-        display_update();
         delay(1000000000);
         return;
-    }
 }
 int main(void) {
 
 	display_initiate();
-	TRISE = 0x00; 	/* Port E bits 0 through 7 is used for the LED and is set to 0 (output) */
-	PORTE = 0x00;
     //int song = menu();
-    int spd = speed();
-	initPwm();
-	runGame(song1, spd);
+    //int spd = speed();
+	//initPwm();
+	//runGame(song1, spd);
+    score=100;
     showScore();
     main();
 	return 0;
@@ -483,7 +485,6 @@ int main(void) {
 
 void user_isr( void ) {
 	if((IFS(0)&0x0100)==0x0100){
-		PORTE = 0xffff;
         IFSCLR(0) = 0x0100;
 	}
 }
