@@ -497,7 +497,7 @@ int showScore(){
 int speed(){
     display_init();
     display_string(0, "Choose Speed:");
-    display_string(1, "Fast, Medium, Slow");
+    display_string(1, "Fast, Med, Slow");
     display_update();
     for(;;){
         if((PORTD & 0b000000100000) == 0b000000100000){
@@ -517,7 +517,7 @@ int menu(){
     display_string(0, "Choose Song:");
     display_string(1, "Wild world");
     display_string(2, "The Robots");
-    display_string(3, "Dancing in the moonlight");
+    display_string(3, "Can't Stop");
     display_update();
     for(;;){
         if((PORTD & 0b000000100000) == 0b000000100000){
