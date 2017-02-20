@@ -174,7 +174,7 @@ char textbuffer[4][16];
 
 extern void _enable_interrupt();
 int note;
-int note2 = note << 5;
+int note2;
 int score;
 int hiScore[3];
 
@@ -194,6 +194,7 @@ void runGame(int song[50], int speed) {
     int j=0;
     for(;;) {
         note = song[x];
+        note2 = note << 5;
         if(i==(1000000/speed)){
             show_block(note);
             x++;
