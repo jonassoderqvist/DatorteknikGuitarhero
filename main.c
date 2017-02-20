@@ -178,6 +178,7 @@ int note2;
 int score;
 int hiScore[3];
 
+
 int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
 int song2[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
 int song3[] = {1,3,0,5};
@@ -208,7 +209,7 @@ void runGame(int song[50], int speed) {
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
 		if((PORTD & 0b000011100000) == note2){
             
-            if(j<100000){
+            if(j>100000){
                 score++;
                 j=0;
             }
@@ -475,19 +476,37 @@ int showScore(){
     }
     delay(100000000);
     clearScrn();
-        int i=3;
+        int i=0;
         bool state=0;
-        while(i>=0){
+        while(i<=3){
             if (state=0){
-                if (score > hiScore[i]){
+                if(hiScore[i]=NULL || score > hiScore[i]){
                     hiScore[i]=score;
                     state=1;
                 }
             }
-            tostring(str, hiScore[i]);
-            display_string(i, str);
-            i--;
+            i++;
         }
+    char st0[10];
+    char st1[10];
+    char st2[10];
+    char st3[10];
+    if (hiScore[0]!=NULL) {
+    tostring(st0, hiScore[0]);
+    display_string(0, st0);
+    }
+    if (hiScore[1]!=NULL) {
+    tostring(st1, hiScore[1]);
+    display_string(1, st1);
+    }
+    if (hiScore[2]!=NULL) {
+    tostring(st2, hiScore[2]);
+    display_string(2, st2);
+    }
+    if (hiScore[3]!=NULL) {
+    tostring(st3, hiScore[3]);
+    display_string(3, st3);
+    }
     display_update();
     if((PORTD & 0b000000100000) == 0b000000100000){
         return 0;
