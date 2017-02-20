@@ -174,6 +174,7 @@ char textbuffer[4][16];
 
 extern void _enable_interrupt();
 int note;
+int note2 = note << 5;
 int score;
 int hiScore[3];
 
@@ -190,6 +191,7 @@ void runGame(int song[50], int speed) {
     score = 0;
     int x=0;
     int i = 0;
+    int j=0;
     for(;;) {
         note = song[x];
         if(i==(1000000/speed)){
@@ -203,11 +205,15 @@ void runGame(int song[50], int speed) {
         i++;
 		int btns = getBtns();
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
-        note = note << 5;
-		if((PORTD & 0b000011100000) == note){
-            score++;
+		if((PORTD & 0b000011100000) == note2){
+            
+            if(j<100000){
+                score++;
+                j=0;
+            }
+            j++;
 		}
-	}
+    }
 }
 
 int getBtns(void) {
