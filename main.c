@@ -455,7 +455,7 @@ void clearScrn(void){
     display_string(3, "");
     display_update();
 }
-showScore(){
+int showScore(){
     char str[10];
     tostring(str, score);
 
@@ -469,9 +469,13 @@ showScore(){
     delay(100000000);
     clearScrn();
         int i=3;
+        bool state=0;
         while(i>=0){
-            if (score > hiScore[i]){
-                hiScore[i]=score;
+            if (state=0){
+                if (score > hiScore[i]){
+                    hiScore[i]=score;
+                    state=1;
+                }
             }
             tostring(str, hiScore[i]);
             display_string(i, str);
@@ -479,10 +483,10 @@ showScore(){
         }
     display_update();
     if((PORTD & 0b000000100000) == 0b000000100000){
-        return;
+        return 0;
     }
         delay(100000000);
-        return;
+        return 0;
 }
 int speed(){
     display_init();
