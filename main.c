@@ -495,14 +495,12 @@ int showScore(){
 		asprintf(&st3, "%d p\n", hiScore[3]);	
 		display_string(3, st3);
     } display_update();
-	
     if((PORTD & 0b000000100000) == 0b000000100000){
         return 0;
     }
         delay(100000000);
         return 0;
 }
-
 int speed(){
     display_init();
     display_string(0, "Choose Speed:");
