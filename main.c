@@ -1,5 +1,8 @@
 #include <pic32mx.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 #define DISPLAY_VDD PORTFbits.RF6
 #define DISPLAY_VBATT PORTFbits.RF5
@@ -170,30 +173,49 @@ const uint8_t const icon2[] = {
 char textbuffer[4][16];
 
 extern void _enable_interrupt();
+int note;
+int note2;
+int score;
+int hiScore[3];
+
 
 int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
-
+int song2[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
+int song3[] = {1,3,0,5};
+void show_block(int pos);
 void setPwm(int pwm, int duty){
 	OC1RS = duty;
 	PR2 = pwm;
 }
 
 void runGame(int song[50], int speed) {
-    int score = 0;
+    score = 0;
     int x=0;
     int i = 0;
-	for(;;) {
-        int note = song[x];
-        if(i==6000/speed){
+    int j=0;
+    for(;;) {
+        note = song[x];
+        note2 = note << 5;
+        if(i==(1000000/speed)){
+            show_block(note);
             x++;
+            if(x==50){
+                break;
+            }
             i=0;
         }
         i++;
 		int btns = getBtns();
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
-		if((PORTD & 0b000011100000) == 1 ){
+		if((PORTD & 0b000011100000) == note2){
+            
+            if(j>100000){
+                score++;
+                j=0;
+            }
+            j++;
 		}
-	}
+    }
 }
 
 int getBtns(void) {
@@ -224,33 +246,7 @@ void initPwm(){
 	// Om något knasar, titta lite djupare på OC1CONSET!!!
 	T2CONSET |= 0x08000; // Enable Timer2
 }
-    int speed(){
-        for(;;){
-            if((PORTD & 0b000000100000) == 0b000000100000){
-                return 1;
-            }
-            if((PORTD & 0b000001000000) == 0b000001000000){
-                return 2;
-            }
-            if((PORTD & 0b000010000000) == 0b000010000000){
-                return 3;
-            }
-        }
-    }
-	
-    int menu(){
-        for(;;){
-        if((PORTD & 0b000000100000) == 0b000000100000){
-            return 1;
-        }
-        if((PORTD & 0b000001000000) == 0b000001000000){
-            return 2;
-        }
-        if((PORTD & 0b000010000000) == 0b000010000000){
-            return 3;
-        }
-    }
-}
+
 
 
 
@@ -384,23 +380,6 @@ void show_block(int pos) {
 			break;	
 	}		
 }
-
-clock(){
-	show_block(1);
-	delay(10000000);
-	show_block(2);
-	delay(10000000);
-	show_block(3);
-	delay(10000000);
-	show_block(4);
-	delay(10000000);
-	show_block(5);
-	delay(10000000);
-	show_block(6);
-	delay(10000000);
-	clock();
-}
-
 display_initiate(){
 	/* Set up peripheral bus clock */
 	OSCCON &= ~0x180000;
@@ -441,36 +420,150 @@ display_initiate(){
 
 // END OF DISPLAY CODE!
 
-int main(void) {
-    //srand(time(NULL));
-	display_initiate();
+void tostring(char str[], int num)
+{
+    int i, rem, len = 0, n;
+    
+    n = num;
+    while (n != 0)
+    {
+        len++;
+        n /= 10;
+    }
+    for (i = 0; i < len; i++)
+    {
+        rem = num % 10;
+        num = num / 10;
+        str[len - (i + 1)] = rem + '0';
+    }
+    str[len] = '\0';
+}
 
+void clearScrn(void){
+    display_init();
+    display_string(0, "");
+    display_string(1, "");
+    display_string(2, "");
+    display_string(3, "");
+    display_update();
+}
+int showScore(){
+    char str[10];
+    tostring(str, score);
+
+    display_init();
+    display_string(0, "Score: ");
+    display_string(1, str);
+	display_update();
+    
+	if((PORTD & 0b000000100000) == 0b000000100000){
+        return;
+    }
+    delay(100000000);
+    clearScrn();
+    int i=0;
+    bool state=0;
+    
+	while(i<=3){
+        if (state=0){
+            if(hiScore[i]=NULL || score > hiScore[i]){
+                hiScore[i]=score;
+				state=1;
+            }
+        }
+        i++;
+    }
+		
+    char *st0;
+    char *st1;
+    char *st2;
+    char *st3;
 	
-	// Iterates song1
-	int songLength = sizeof(song1)/sizeof(int);
-	int i;
-	for(i = 0; i < songLength; i++) {
-		show_block(song1[i]);
-		delay(10000000);
-	}
+    if (hiScore[0]!=NULL) {
+		asprintf(&st0, "%d p\n", hiScore[0]);
+		display_string(0, st0);
+    }
+    else if (hiScore[1]!=NULL) {
+		asprintf(&st1, "%d p\n", hiScore[1]);
+		display_string(1, st1);
+    }
+    else if (hiScore[2]!=NULL) {
+		asprintf(&st2, "%d p\n", hiScore[2]);	
+		display_string(2, st2);
+    }
+    else if (hiScore[3]!=NULL) {
+		asprintf(&st3, "%d p\n", hiScore[3]);	
+		display_string(3, st3);
+    } display_update();
 	
-	show_block(1);
-	for(;;);
-	
-	
-	TRISE = 0x00; 	/* Port E bits 0 through 7 is used for the LED and is set to 0 (output) */
-	PORTE = 0x00;
+    if((PORTD & 0b000000100000) == 0b000000100000){
+        return 0;
+    }
+        delay(100000000);
+        return 0;
+}
+
+int speed(){
+    display_init();
+    display_string(0, "Choose Speed:");
+    display_string(1, "Fast, Med, Slow");
+    display_update();
+    for(;;){
+        if((PORTD & 0b000000100000) == 0b000000100000){
+            return 1;
+        }
+        if((PORTD & 0b000001000000) == 0b000001000000){
+            return 2;
+        }
+        if((PORTD & 0b000010000000) == 0b000010000000){
+            return 3;
+        }
+    }
+}
+
+int menu(){
+    display_init();
+    display_string(0, "Choose Song:");
+    display_string(1, "Wild world");
+    display_string(2, "The Robots");
+    display_string(3, "Can't Stop");
+    display_update();
+    for(;;){
+        if((PORTD & 0b000000100000) == 0b000000100000){
+            return 1;
+        }
+        if((PORTD & 0b000001000000) == 0b000001000000){
+            return 2;
+        }
+        if((PORTD & 0b000010000000) == 0b000010000000){
+            return 3;
+        }
+    }
+}
+int main(void) {
+    
+	display_initiate();
     int song = menu();
+    clearScrn();
     int spd = speed();
-	initPwm();
-	runGame(song1, spd);
-    //showScore();
+	//initPwm();
+    clearScrn();
+    if (song==1){
+        runGame(song1, spd);
+    }if (song==2) {
+        runGame(song2, spd);
+    }if(song==3){
+        runGame(song3, spd);
+    }
+    showScore();
+    clearScrn();
+    score=0;
+    main();
 	return 0;
 }
 
 void user_isr( void ) {
 	if((IFS(0)&0x0100)==0x0100){
-		PORTE = 0xffff;
         IFSCLR(0) = 0x0100;
 	}
 }
