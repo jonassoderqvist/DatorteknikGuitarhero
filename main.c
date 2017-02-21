@@ -438,6 +438,7 @@ void tostring(char str[], int num)
     }
     str[len] = '\0';
 }
+
 void clearScrn(void){
     display_init();
     display_string(0, "");
@@ -452,45 +453,48 @@ int showScore(){
 
     display_init();
     display_string(0, "Score: ");
-        display_string(1, str);
-        display_update();
-    if((PORTD & 0b000000100000) == 0b000000100000){
+    display_string(1, str);
+	display_update();
+    
+	if((PORTD & 0b000000100000) == 0b000000100000){
         return;
     }
     delay(100000000);
     clearScrn();
-        int i=0;
-        bool state=0;
-        while(i<=3){
-            if (state=0){
-                if(hiScore[i]=NULL || score > hiScore[i]){
-                    hiScore[i]=score;
-                    state=1;
-                }
+    int i=0;
+    bool state=0;
+    
+	while(i<=3){
+        if (state=0){
+            if(hiScore[i]=NULL || score > hiScore[i]){
+                hiScore[i]=score;
+				state=1;
             }
-            i++;
         }
-    char st0[10];
-    char st1[10];
-    char st2[10];
-    char st3[10];
+        i++;
+    }
+		
+    char *st0;
+    char *st1;
+    char *st2;
+    char *st3;
+	
     if (hiScore[0]!=NULL) {
-    tostring(st0, hiScore[0]);
-    display_string(0, st0);
+		asprintf(&st0, "%d p\n", hiScore[0]);
+		display_string(0, st0);
     }
-    if (hiScore[1]!=NULL) {
-    tostring(st1, hiScore[1]);
-    display_string(1, st1);
+    else if (hiScore[1]!=NULL) {
+		asprintf(&st1, "%d p\n", hiScore[1]);
+		display_string(1, st1);
     }
-    if (hiScore[2]!=NULL) {
-    tostring(st2, hiScore[2]);
-    display_string(2, st2);
+    else if (hiScore[2]!=NULL) {
+		asprintf(&st2, "%d p\n", hiScore[2]);	
+		display_string(2, st2);
     }
-    if (hiScore[3]!=NULL) {
-    tostring(st3, hiScore[3]);
-    display_string(3, st3);
-    }
-    display_update();
+    else if (hiScore[3]!=NULL) {
+		asprintf(&st3, "%d p\n", hiScore[3]);	
+		display_string(3, st3);
+    } display_update();
     if((PORTD & 0b000000100000) == 0b000000100000){
         return 0;
     }
