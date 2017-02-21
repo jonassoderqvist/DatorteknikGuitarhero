@@ -380,23 +380,6 @@ void show_block(int pos) {
 			break;	
 	}		
 }
-
-clock(){
-	show_block(1);
-	delay(10000000);
-	show_block(2);
-	delay(10000000);
-	show_block(3);
-	delay(10000000);
-	show_block(4);
-	delay(10000000);
-	show_block(5);
-	delay(10000000);
-	show_block(6);
-	delay(10000000);
-	clock();
-}
-
 display_initiate(){
 	/* Set up peripheral bus clock */
 	OSCCON &= ~0x180000;
@@ -552,7 +535,7 @@ int menu(){
     }
 }
 int main(void) {
-
+    
 	display_initiate();
     int song = menu();
     clearScrn();
