@@ -180,12 +180,13 @@ extern void _enable_interrupt();
 int note;
 int note2;
 int score;
-int hiScore[2];
+
+int hiScore[4] = {0,0,0,0}; // fourth element is joker-element, for comparison purposes.
 
 
-int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
-int song2[] = {4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3};
-int song3[] = {1,3,0,5,1,1,3,2,3,4,3,6,5,4,3,2,3,4,3,2,3,4,3,4,5,3,3,4,3,1,3,0,5,1,1,3,2,3,4,3,6,5,4,3,2,3,4,3,2,3,4,3,4,5,3,3,4,3,1,3,0,5,1,1,3,2,3,4};
+int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5}; // hard
+int song2[] = {1,2,1,8,4,1,8,2,4,1,8,1,2,4,8,2,8,1,2,8,1,2,1,8,4,8,2,1,4,2,1,8,4,1,4,2,1,8,2,4,1,8,1,4,2,1,8,1,2}; // medium
+int song3[] = {1,1,2,2,4,4,8,8,2,2,8,8,4,4,2,2,8,8,2,2,8,8,2,2,1,1,8,8,4,4,2,2,1,1,8,8,4,4,8,8,2,2,1,1,8,8,2,2,1}; // easy
 
 void show_block(int pos);
 
@@ -193,13 +194,29 @@ void setPwm(int pwm, int duty){
 	OC1RS = duty;
 	PR2 = pwm;
 }
-void addScore(int j){
-        if(j>1000){
-            score++;
-            j=0;
-        }
-        j++;
+
+
+void delay(int cyc) {
+	int i;
+	for(i = cyc; i > 0; i--);
 }
+
+
+int gameInit(int song[50], int delay) {
+		score = 0;
+		int btns = getBtns();
+		for(int i = 0; i < 49; i+){
+			show_block(song[i]);
+			delay(delay);
+			
+			if((btns & song[i]) == song[i]){
+				score++;
+			} 
+		}
+		
+		return score;
+}
+
 void runGame(int song[50], int speed) {
     score = 0;
     int x=0;
@@ -231,13 +248,9 @@ int getBtns(void) {
  	return((PORTD >>5) &0x7);	/* Port D bits 5 through 8 is used for the Buttons and is set to 1 (input) */
  }
 
- int getSwitches(void) {
- 	return((PORTD>>8) &0xF); 	/* Port D bits 8 through 12 is used for the Switches and is set to 1 (input) */
- }
-
- int getbtn(void) {
+int getbtn(void) {
  	return(PORTD &0x1);
- }
+}
 
 
 void initPwm(){
@@ -260,11 +273,6 @@ void initPwm(){
 
 
 // CODE BELOW IS FOR DISPLAY PURPOSES!
-
-void delay(int cyc) {
-	int i;
-	for(i = cyc; i > 0; i--);
-}
 
 uint8_t spi_send_recv(uint8_t data) {
 	while(!(SPI2STAT & 0x08));
@@ -368,6 +376,7 @@ void show_block(int pos) {
 			break;
 		case 1: 
 			display_image(100, icon2);
+			return 0b001;
 			break;
 		case 2:
 			display_image(50, icon2);
@@ -456,7 +465,36 @@ void clearScrn(void){
     display_string(3, "");
     display_update();
 }
-int showScore(int score){
+
+void registerHighscore(int score) {
+	
+	/* 	Method will take score as argument and compare to highscore-array 
+		to decide whether or not it qualifies the highscore */
+	
+	if(hiScore[0] == 0){
+		// Array is empty
+		hiScore[0] = score;
+	} else {
+		// Array is not empty
+		hiScore[4] = score; // place at joker-slot
+		
+		int n = sizeof(hiScore) / sizeof(int);
+		int a;
+		
+		// O(n^2), but fuck performance, amirite?
+		for (i = 0; i < n; ++i) {
+			for (j = i + 1; j < n; ++j) {
+				if (hiScore[i] > hiScore[j]) {
+					a =  hiScore[i];
+					hiScore[i] = hiScore[j];
+					hiScore[j] = a;
+				}
+			}
+		}
+	}
+}
+
+int showScore(){
     char str[10];
     tostring(str, score);
 
@@ -516,17 +554,22 @@ int listHiScore(){
 int speed(){
     display_init();
     display_string(0, "Choose Speed:");
-    display_string(1, "Fast, Med, Slow");
+    display_string(1, "1: Slow");
+	display_string(2, "2: Med");
+	display_string(3, "3: Fast");
     display_update();
     for(;;){
         if((PORTD & 0b000000100000) == 0b000000100000){
+			// replace with appropriate delay-value for fast
             return 1;
         }
         if((PORTD & 0b000001000000) == 0b000001000000){
-            return 2;
+            // replace with appropriate delay-value for med
+			return 2;
         }
         if((PORTD & 0b000010000000) == 0b000010000000){
-            return 3;
+            // replace with appropriate delay-value for slow
+			return 3;
         }
     }
 }
@@ -534,18 +577,18 @@ int speed(){
 int menu(){
     display_init();
     display_string(0, "Choose Song:");
-    display_string(1, "Wild world");
-    display_string(2, "The Robots");
-    display_string(3, "Can't Stop");
+    display_string(1, "1: Wild world (Easy)");
+    display_string(2, "2: The Robots (Medium)");
+    display_string(3, "3: Can't Stop (Hard)");
     display_update();
     for(;;){
-        if((PORTD & 0b000000100000) == 0b000000100000){
+        if((PORTD & 0b0100000) == 0b0100000){
             return 1;
         }
-        if((PORTD & 0b000001000000) == 0b000001000000){
+        if((PORTD & 0b01000000) == 0b01000000){
             return 2;
         }
-        if((PORTD & 0b000010000000) == 0b000010000000){
+        if((PORTD & 0b010000000) == 0b010000000){
             return 3;
         }
     }
