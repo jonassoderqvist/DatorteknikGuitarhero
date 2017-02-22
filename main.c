@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 
 #define DISPLAY_VDD PORTFbits.RF6
@@ -152,20 +153,23 @@ static const uint8_t const font[] = {
 
 const uint8_t const icon2[] = {
 	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,240,240,240,
+	240,240,240,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,
+    
 	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,255,255,255,
+	255,255,255,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,
+    
 	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,255,255,255,
+	255,255,255,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,
+    
 	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,15,15,15,
+	15,15,15,0,0,0,0,0,
 	0,0,0,0,0,0,0,0
 };
 
@@ -176,18 +180,21 @@ extern void _enable_interrupt();
 int note;
 int note2;
 int score;
+
 int hiScore[4] = {0,0,0,0}; // fourth element is joker-element, for comparison purposes.
 
 
 int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5}; // hard
 int song2[] = {1,2,1,8,4,1,8,2,4,1,8,1,2,4,8,2,8,1,2,8,1,2,1,8,4,8,2,1,4,2,1,8,4,1,4,2,1,8,2,4,1,8,1,4,2,1,8,1,2}; // medium
 int song3[] = {1,1,2,2,4,4,8,8,2,2,8,8,4,4,2,2,8,8,2,2,8,8,2,2,1,1,8,8,4,4,2,2,1,1,8,8,4,4,8,8,2,2,1,1,8,8,2,2,1}; // easy
+
 void show_block(int pos);
 
 void setPwm(int pwm, int duty){
 	OC1RS = duty;
 	PR2 = pwm;
 }
+
 
 void delay(int cyc) {
 	int i;
@@ -210,7 +217,6 @@ int gameInit(int song[50], int delay) {
 		return score;
 }
 
-
 void runGame(int song[50], int speed) {
     score = 0;
     int x=0;
@@ -231,13 +237,10 @@ void runGame(int song[50], int speed) {
 		int btns = getBtns();
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
 		if((PORTD & 0b000011100000) == note2){
-            
-            if(j>100000){
-                score++;
-                j=0;
-            }
-            j++;
-		}
+                if(note!=0){
+                    addScore(j);
+                }
+        }
     }
 }
 
@@ -504,46 +507,49 @@ int showScore(){
         return;
     }
     delay(100000000);
-    clearScrn();
+}
+setScore(){
+    hiScore[0]=10;
+    hiScore[1]=11;
+    hiScore[2]=2;
+}
+setHiScore(){
     int i=0;
     bool state=0;
     
 	while(i<=3){
+
         if (state=0){
-            if(hiScore[i]=NULL || score > hiScore[i]){
+            if(hiScore[i]==0 || score > hiScore[i]){
                 hiScore[i]=score;
 				state=1;
             }
         }
         i++;
     }
-		
-    char *st0;
-    char *st1;
-    char *st2;
-    char *st3;
-	
-    if (hiScore[0]!=NULL) {
-		asprintf(&st0, "%d p\n", hiScore[0]);
-		display_string(0, st0);
-    }
-    else if (hiScore[1]!=NULL) {
-		asprintf(&st1, "%d p\n", hiScore[1]);
-		display_string(1, st1);
-    }
-    else if (hiScore[2]!=NULL) {
-		asprintf(&st2, "%d p\n", hiScore[2]);	
-		display_string(2, st2);
-    }
-    else if (hiScore[3]!=NULL) {
-		asprintf(&st3, "%d p\n", hiScore[3]);	
-		display_string(3, st3);
-    } display_update();
+    return 0;
+}
+    
+int listHiScore(){
+    display_init();
+    char st0[10];
+    char st1[10];
+    char st2[10];
+    char st3[10];
+    display_string(0, "HighScore");
+      tostring(st0, hiScore[0]);
+        display_string(1, st0);
+       tostring(st1, hiScore[1]);
+        display_string(2, st1);
+      tostring(st2, hiScore[2]);
+        display_string(3, st2);
+    display_update();
     if((PORTD & 0b000000100000) == 0b000000100000){
         return 0;
     }
-        delay(100000000);
-        return 0;
+    delay(100000000);
+    return 0;
+
 }
 int speed(){
     display_init();
@@ -602,7 +608,12 @@ int main(void) {
     }if(song==3){
         runGame(song3, spd);
     }
-    showScore();
+    score = score/spd;
+    showScore(score);
+    //setHiScore();
+    setScore();
+    clearScrn();
+    listHiScore();
     clearScrn();
     score=0;
     main();
