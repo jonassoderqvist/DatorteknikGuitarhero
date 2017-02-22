@@ -153,20 +153,23 @@ static const uint8_t const font[] = {
 
 const uint8_t const icon2[] = {
 	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,240,240,240,
+	240,240,240,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,
+    
 	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,255,255,255,
+	255,255,255,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,
+    
 	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,255,255,255,
+	255,255,255,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,
+    
 	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,15,15,15,
+	15,15,15,0,0,0,0,0,
 	0,0,0,0,0,0,0,0
 };
 
@@ -181,14 +184,22 @@ int hiScore[2];
 
 
 int song1[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
-int song2[] = {1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5,0,3,1,4,2,1,3,0,5};
-int song3[] = {1,3,0,5};
+int song2[] = {4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3,4,4,3,2,3};
+int song3[] = {1,3,0,5,1,1,3,2,3,4,3,6,5,4,3,2,3,4,3,2,3,4,3,4,5,3,3,4,3,1,3,0,5,1,1,3,2,3,4,3,6,5,4,3,2,3,4,3,2,3,4,3,4,5,3,3,4,3,1,3,0,5,1,1,3,2,3,4};
+
 void show_block(int pos);
+
 void setPwm(int pwm, int duty){
 	OC1RS = duty;
 	PR2 = pwm;
 }
-
+void addScore(int j){
+        if(j>1000){
+            score++;
+            j=0;
+        }
+        j++;
+}
 void runGame(int song[50], int speed) {
     score = 0;
     int x=0;
@@ -209,13 +220,10 @@ void runGame(int song[50], int speed) {
 		int btns = getBtns();
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
 		if((PORTD & 0b000011100000) == note2){
-            
-            if(j>100000){
-                score++;
-                j=0;
-            }
-            j++;
-		}
+                if(note!=0){
+                    addScore(j);
+                }
+        }
     }
 }
 
@@ -448,7 +456,7 @@ void clearScrn(void){
     display_string(3, "");
     display_update();
 }
-int showScore(){
+int showScore(int score){
     char str[10];
     tostring(str, score);
 
@@ -557,7 +565,8 @@ int main(void) {
     }if(song==3){
         runGame(song3, spd);
     }
-    showScore();
+    score = score/spd;
+    showScore(score);
     //setHiScore();
     setScore();
     clearScrn();
