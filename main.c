@@ -563,15 +563,15 @@ int speed(){
     for(;;){
         if((PORTD & 0b000000100000) == 0b000000100000){
 			// replace with appropriate delay-value for fast
-            return 10000000000;
+            return 1000000000000000;
         }
         if((PORTD & 0b000001000000) == 0b000001000000){
             // replace with appropriate delay-value for med
-			return 20000000000;
+			return 2000000000000000;
         }
         if((PORTD & 0b000010000000) == 0b000010000000){
             // replace with appropriate delay-value for slow
-			return 30000000000;
+			return 300000000000000;
         }
     }
 }
