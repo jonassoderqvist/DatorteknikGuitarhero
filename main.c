@@ -202,12 +202,13 @@ void delay(int cyc) {
 }
 
 
-int gameInit(int song[50], int delay) {
+int gameInit(int song[50], int dlay) {
 		score = 0;
 		int btns = getBtns();
-		for(int i = 0; i < 49; i+){
+    int i = 0;
+    for(i < 49; i++;){
 			show_block(song[i]);
-			delay(delay);
+			delay(dlay);
 			
 			if((btns & song[i]) == song[i]){
 				score++;
@@ -238,7 +239,7 @@ void runGame(int song[50], int speed) {
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
 		if((PORTD & 0b000011100000) == note2){
                 if(note!=0){
-                    addScore(j);
+                   // addScore(j);
                 }
         }
     }
@@ -376,7 +377,6 @@ void show_block(int pos) {
 			break;
 		case 1: 
 			display_image(100, icon2);
-			return 0b001;
 			break;
 		case 2:
 			display_image(50, icon2);
@@ -482,8 +482,10 @@ void registerHighscore(int score) {
 		int a;
 		
 		// O(n^2), but fuck performance, amirite?
-		for (i = 0; i < n; ++i) {
-			for (j = i + 1; j < n; ++j) {
+        int i = 0;
+        for (i < n; i++;) {
+            int j;
+            for (j = i + 1; j < n; j++) {
 				if (hiScore[i] > hiScore[j]) {
 					a =  hiScore[i];
 					hiScore[i] = hiScore[j];
@@ -561,15 +563,15 @@ int speed(){
     for(;;){
         if((PORTD & 0b000000100000) == 0b000000100000){
 			// replace with appropriate delay-value for fast
-            return 1;
+            return 10000000000;
         }
         if((PORTD & 0b000001000000) == 0b000001000000){
             // replace with appropriate delay-value for med
-			return 2;
+			return 20000000000;
         }
         if((PORTD & 0b000010000000) == 0b000010000000){
             // replace with appropriate delay-value for slow
-			return 3;
+			return 30000000000;
         }
     }
 }
@@ -602,11 +604,11 @@ int main(void) {
 	//initPwm();
     clearScrn();
     if (song==1){
-        runGame(song1, spd);
+        gameInit(song1, spd);
     }if (song==2) {
-        runGame(song2, spd);
+        gameInit(song2, spd);
     }if(song==3){
-        runGame(song3, spd);
+        gameInit(song3, spd);
     }
     score = score/spd;
     showScore(score);
