@@ -574,7 +574,7 @@ int speed(){
     }
 }
 
-int menu(){
+int song(){
     display_init();
     display_string(0, "Choose Song:");
     display_string(1, "1: Wild world (Easy)");
@@ -593,29 +593,57 @@ int menu(){
         }
     }
 }
+int menu(){
+    display_init();
+    display_string(0, "What would you like to do?");
+    display_string(1, "1: Play");
+    display_string(2, "2: See high-score");
+    display_string(3, "3: Exit");
+    display_update();
+    for(;;){
+        if((PORTD & 0b0100000) == 0b0100000){
+            return 1;
+        }
+        if((PORTD & 0b01000000) == 0b01000000){
+            return 2;
+        }
+        if((PORTD & 0b010000000) == 0b010000000){
+            exit(0);
+        }
+    }
+}
 int main(void) {
     
-	display_initiate();
-    int song = menu();
-    int spd = speed();
-    clearScrn();
-	//initPwm();
-    if (song==1){
-        //score = gameInit(song1, spd);
-        runGame(song1, 1);
-    }if (song==2) {
-        //score = gameInit(song2, spd);
-        runGame(song2, 1);
-    }if(song==3){
-        //score = gameInit(song3, spd);
-        runGame(song3, 1);
+    display_initiate();
+    int op = menu();
+    switch(op){
+        case 1:
+            int song = song();
+            clearScrn();
+            int spd = speed();
+            clearScrn();
+            if (song==1){
+                runGame(song1, spd);
+            }
+            if (song==2) {
+                runGame(song2, spd);
+            }
+            if(song==3){
+                runGame(song3, spd);
+            }
+            showScore(score);
+            registerHighscore(score);
+            clearScrn();
+            score=0;
+            main();
+        case 2:
+            listHiScore();
+            delay(100000);
+            main();
+        default: main();
     }
-    showScore(score);
-    registerHighscore(score);
-    listHiScore();
-    score=0;
     main();
-	return 0;
+    return 0;
 }
 
 void user_isr( void ) {
