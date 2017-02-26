@@ -173,7 +173,7 @@ const uint8_t const icon2[] = {
 	0,0,0,0,0,0,0,0
 };
 
-
+#define spdMulti 10000000
 char textbuffer[4][16];
 
 extern void _enable_interrupt();
@@ -204,16 +204,18 @@ void delay(int cyc) {
 
 int gameInit(int song[50], int dlay) {
 		score = 0;
-		int btns = getBtns();
-    int i = 0;
-    for(i < 49; i++;){
-			show_block(song[i]);
-			delay(dlay);
-			
+		int btns;
+    int i;
+    for(i=0;i < 50; i++){
+        note = song[i];
+			show_block(note);
+			delay(dlay/2);
+			btns = getBtns();
+            delay(dlay/2);
 			if((btns & song[i]) == song[i]){
 				score++;
 			} 
-		}
+    }
 		
 		return score;
 }
@@ -239,7 +241,7 @@ void runGame(int song[50], int speed) {
 		// Check buttons. If button is pressed, corresponding note's play-value will be set to 1 (true)
 		if((PORTD & 0b000011100000) == note2){
                 if(note!=0){
-                   // addScore(j);
+                    score++;
                 }
         }
     }
@@ -467,6 +469,7 @@ void clearScrn(void){
 }
 
 void registerHighscore(int score) {
+<<<<<<< Updated upstream
 	
 	/* 	Method will take score as argument and compare to highscore-array 
 		to decide whether or not it qualifies the highscore */
@@ -490,9 +493,34 @@ void registerHighscore(int score) {
 			}
 		}
 	}
+=======
+    
+    /* 	Method will take score as argument and compare to highscore-array
+     to decide whether or not it qualifies the highscore */
+    
+    int i, j, temp;
+    int n = sizeof(hiscore) / sizeof(int);
+    
+    if(hiScore[3] == 0){
+        // Array is empty
+        hiScore[3] = score;
+    } else {
+        hiscore[0] = score;
+    }
+    
+    for(i = 0; i < n-1; i++) {
+        for(j = 0; j < (n-1-i); j++) {
+            if(hiscore[j] > hiscore[j+1]) {
+                temp = hiscore[j];
+                hiscore[j] = hiscore[j+1];
+                hiscore[j+1] = temp;
+            }
+        }
+    }
+>>>>>>> Stashed changes
 }
 
-int showScore(){
+int showScore(int score){
     char str[10];
     tostring(str, score);
 
@@ -559,15 +587,15 @@ int speed(){
     for(;;){
         if((PORTD & 0b000000100000) == 0b000000100000){
 			// replace with appropriate delay-value for fast
-            return 1000000000000000;
+            return spdMulti/3;
         }
         if((PORTD & 0b000001000000) == 0b000001000000){
             // replace with appropriate delay-value for med
-			return 2000000000000000;
+			return spdMulti/2;
         }
         if((PORTD & 0b000010000000) == 0b000010000000){
             // replace with appropriate delay-value for slow
-			return 300000000000000;
+			return spdMulti;
         }
     }
 }
@@ -595,24 +623,22 @@ int main(void) {
     
 	display_initiate();
     int song = menu();
-    clearScrn();
     int spd = speed();
+    clearScrn();
 	//initPwm();
-    clearScrn();
     if (song==1){
-        gameInit(song1, spd);
+        //score = gameInit(song1, spd);
+        runGame(song1, 1);
     }if (song==2) {
-        gameInit(song2, spd);
+        //score = gameInit(song2, spd);
+        runGame(song2, 1);
     }if(song==3){
-        gameInit(song3, spd);
+        //score = gameInit(song3, spd);
+        runGame(song3, 1);
     }
-    score = score/spd;
     showScore(score);
-    //setHiScore();
-    setScore();
-    clearScrn();
+    registerHighscore(score);
     listHiScore();
-    clearScrn();
     score=0;
     main();
 	return 0;
