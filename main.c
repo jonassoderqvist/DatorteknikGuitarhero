@@ -618,17 +618,17 @@ int main(void) {
     int op = menu();
     switch(op){
         case 1:
-            int song = song();
+            int sng = song();
             clearScrn();
             int spd = speed();
             clearScrn();
-            if (song==1){
+            if (sng==1){
                 runGame(song1, spd);
             }
-            if (song==2) {
+            if (sng==2) {
                 runGame(song2, spd);
             }
-            if(song==3){
+            if(sng==3){
                 runGame(song3, spd);
             }
             showScore(score);
