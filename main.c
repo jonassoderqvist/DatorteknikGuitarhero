@@ -469,55 +469,29 @@ void clearScrn(void){
 }
 
 void registerHighscore(int score) {
-<<<<<<< Updated upstream
 	
 	/* 	Method will take score as argument and compare to highscore-array 
 		to decide whether or not it qualifies the highscore */
 	
 	int i, j, temp;
-	int n = sizeof(hiscore) / sizeof(int);
+	int n = sizeof(hiScore) / sizeof(int);
 	
 	if(hiScore[3] == 0){
 		// Array is empty
 		hiScore[3] = score;
 	} else {
-		hiscore[0] = score;
+		hiScore[0] = score;
 	}
 	
 	for(i = 0; i < n-1; i++) {
 		for(j = 0; j < (n-1-i); j++) {
-			if(hiscore[j] > hiscore[j+1]) {
-					temp = hiscore[j];
-					hiscore[j] = hiscore[j+1];
-					hiscore[j+1] = temp;
+			if(hiScore[j] > hiScore[j+1]) {
+					temp = hiScore[j];
+					hiScore[j] = hiScore[j+1];
+					hiScore[j+1] = temp;
 			}
 		}
 	}
-=======
-    
-    /* 	Method will take score as argument and compare to highscore-array
-     to decide whether or not it qualifies the highscore */
-    
-    int i, j, temp;
-    int n = sizeof(hiscore) / sizeof(int);
-    
-    if(hiScore[3] == 0){
-        // Array is empty
-        hiScore[3] = score;
-    } else {
-        hiscore[0] = score;
-    }
-    
-    for(i = 0; i < n-1; i++) {
-        for(j = 0; j < (n-1-i); j++) {
-            if(hiscore[j] > hiscore[j+1]) {
-                temp = hiscore[j];
-                hiscore[j] = hiscore[j+1];
-                hiscore[j+1] = temp;
-            }
-        }
-    }
->>>>>>> Stashed changes
 }
 
 int showScore(int score){
