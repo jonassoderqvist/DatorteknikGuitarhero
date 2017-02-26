@@ -471,24 +471,22 @@ void registerHighscore(int score) {
 	/* 	Method will take score as argument and compare to highscore-array 
 		to decide whether or not it qualifies the highscore */
 	
-	if(hiScore[0] == 0){
+	int i, j, temp;
+	int n = sizeof(hiscore) / sizeof(int);
+	
+	if(hiScore[3] == 0){
 		// Array is empty
-		hiScore[0] = score;
+		hiScore[3] = score;
 	} else {
-		// Array is not empty
-		hiScore[4] = score; // place at joker-slot
-		
-		int n = sizeof(hiScore) / sizeof(int);
-		int a;
-		
-		// O(n^2), but fuck performance, amirite?
-		for (i = 0; i < n; ++i) {
-			for (j = i + 1; j < n; ++j) {
-				if (hiScore[i] > hiScore[j]) {
-					a =  hiScore[i];
-					hiScore[i] = hiScore[j];
-					hiScore[j] = a;
-				}
+		hiscore[0] = score;
+	}
+	
+	for(i = 0; i < n-1; i++) {
+		for(j = 0; j < (n-1-i); j++) {
+			if(hiscore[j] > hiscore[j+1]) {
+					temp = hiscore[j];
+					hiscore[j] = hiscore[j+1];
+					hiscore[j+1] = temp;
 			}
 		}
 	}
@@ -537,11 +535,11 @@ int listHiScore(){
     char st2[10];
     char st3[10];
     display_string(0, "HighScore");
-      tostring(st0, hiScore[0]);
+      tostring(st0, hiScore[3]);
         display_string(1, st0);
-       tostring(st1, hiScore[1]);
+       tostring(st1, hiScore[2]);
         display_string(2, st1);
-      tostring(st2, hiScore[2]);
+      tostring(st2, hiScore[1]);
         display_string(3, st2);
     display_update();
     if((PORTD & 0b000000100000) == 0b000000100000){
